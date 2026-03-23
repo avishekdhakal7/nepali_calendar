@@ -64,8 +64,12 @@ export default function SchoolAdminSidebar({ activeRoute, sidebarOpen, setSideba
         <div className="flex items-center px-3 py-5 border-b border-zinc-800/60 gap-3">
           {isOpen ? (
             <div className="flex items-center gap-3 overflow-hidden flex-1 min-w-0">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0">
-                <School className="w-4 h-4 text-white" />
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                {user?.logo ? (
+                  <img src={user.logo} alt={user.school_name || ''} className="w-full h-full object-cover" />
+                ) : (
+                  <School className="w-4 h-4 text-white" />
+                )}
               </div>
               <div className="overflow-hidden">
                 <p className="text-sm font-semibold text-white truncate">{user?.school_name || 'School'}</p>
@@ -73,8 +77,12 @@ export default function SchoolAdminSidebar({ activeRoute, sidebarOpen, setSideba
               </div>
             </div>
           ) : (
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0 mx-auto">
-              <School className="w-4 h-4 text-white" />
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0 mx-auto overflow-hidden">
+              {user?.logo ? (
+                <img src={user.logo} alt={user.school_name || ''} className="w-full h-full object-cover" />
+              ) : (
+                <School className="w-4 h-4 text-white" />
+              )}
             </div>
           )}
           <button

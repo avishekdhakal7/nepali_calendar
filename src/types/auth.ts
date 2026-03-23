@@ -21,6 +21,7 @@ export interface AuthUser {
   is_owner?: boolean
   full_name?: string
   admission_number?: string
+  logo?: string
   all_memberships?: {
     id: number
     school_id: number

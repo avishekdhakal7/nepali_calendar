@@ -3,13 +3,14 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/store/auth'
-import { Settings, User, Bell, Shield, LogOut, Save } from 'lucide-react'
+import { Settings, User, Bell, Shield, LogOut, Save, Palette } from 'lucide-react'
 import SchoolAdminLayout from '@/components/layout/school-admin-layout'
+import SchoolLogoUpload from '@/components/settings/school-logo-upload'
 
 export default function SettingsPage() {
   const router = useRouter()
   const { user, logout } = useAuthStore()
-  const [tab, setTab] = useState<'profile' | 'notifications' | 'security'>('profile')
+  const [tab, setTab] = useState<'profile' | 'branding' | 'notifications' | 'security'>('branding')
 
   function handleLogout() {
     logout()
@@ -18,6 +19,7 @@ export default function SettingsPage() {
   }
 
   const tabs = [
+    { key: 'branding', label: 'Branding', icon: Palette },
     { key: 'profile', label: 'Profile', icon: User },
     { key: 'notifications', label: 'Notifications', icon: Bell },
     { key: 'security', label: 'Security', icon: Shield },
@@ -48,6 +50,14 @@ export default function SettingsPage() {
 
         {/* Content */}
         <div className="lg:col-span-3 space-y-6">
+          {tab === 'branding' && (
+            <SchoolLogoUpload
+              schoolId={user?.school_id || 0}
+              currentLogo={user?.logo}
+              schoolName={user?.school_name}
+            />
+          )}
+
           {tab === 'profile' && (
             <div className="bg-zinc-900/60 border border-zinc-800/60 rounded-xl p-5 space-y-4">
               <h3 className="text-sm font-semibold text-white flex items-center gap-2">
