@@ -82,7 +82,7 @@ export default function BsCalendarGrid({ selectedAdDate, onDateSelect, className
     if (todayBs) {
       setBsYear(todayBs.bsYear);
       setBsMonth(todayBs.bsMonth);
-      setSelectedDay(todayBs.bsDay);
+      setSelectedDay(null);
     }
   };
 
