@@ -23,9 +23,9 @@ export default function SchoolAdminLayout({
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] text-white flex">
-      <SchoolAdminSidebar activeRoute={activeRoute} />
+      <SchoolAdminSidebar activeRoute={activeRoute} sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
-      <main className={`flex-1 transition-all duration-300 ${sidebarOpen ? 'ml-60' : 'ml-16'}`}>
+      <main className={`flex-1 transition-all duration-300 ${sidebarOpen ? 'lg:ml-60' : 'lg:ml-16'}`}>
         <PageHeader
           title={title}
           showBell={showBell}

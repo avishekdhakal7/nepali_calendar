@@ -6,7 +6,7 @@ import api from '@/lib/api'
 import SchoolAdminLayout from '@/components/layout/school-admin-layout'
 import { adToBsApi } from '@/lib/date-utils'
 import BsCalendarGrid from '@/components/calendar/BsCalendarGrid'
-import type { BsDay } from '@/lib/bsCalendar'
+import type { DateClickResult } from '@/components/calendar/BsCalendarGrid'
 
 interface AttendanceSummary {
   percentage: number
@@ -103,7 +103,7 @@ export default function AttendancePage() {
         <div className="w-full max-w-sm">
           <BsCalendarGrid
             selectedAdDate={date}
-            onDateSelect={(bs: BsDay) => { setDate(bs.ad); setDateBs(bs.bs); setPage(1) }}
+            onDateSelect={(result: DateClickResult) => { setDate(result.bs.ad); setDateBs(result.bs.bs); setPage(1) }}
           />
         </div>
       </div>

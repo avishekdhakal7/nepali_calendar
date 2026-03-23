@@ -7,7 +7,7 @@ import api from '@/lib/api'
 import type { AxiosError } from 'axios'
 import { adToBsApi } from '@/lib/date-utils'
 import BsCalendarGrid from '@/components/calendar/BsCalendarGrid'
-import type { BsDay } from '@/lib/bsCalendar'
+import type { DateClickResult } from '@/components/calendar/BsCalendarGrid'
 
 interface Section {
   id: number
@@ -187,7 +187,7 @@ export default function TeacherAttendancePage() {
         <div className="w-full max-w-sm">
           <BsCalendarGrid
             selectedAdDate={selectedDate}
-            onDateSelect={(bs: BsDay) => { setSelectedDate(bs.ad); setDateBs(bs.bs) }}
+            onDateSelect={(result: DateClickResult) => { setSelectedDate(result.bs.ad); setDateBs(result.bs.bs) }}
           />
         </div>
       </div>

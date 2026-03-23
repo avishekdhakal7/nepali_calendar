@@ -1,6 +1,6 @@
 'use client'
 
-import { PortalLayout } from '@/components/layout/portal-layout'
+import SchoolAdminLayout from '@/components/layout/school-admin-layout'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import api from '@/lib/api'
@@ -154,11 +154,8 @@ export default function SchoolAdminDashboard({ serverUser }: Props) {
   ]
 
   return (
-    <PortalLayout
-      title="Dashboard"
-      subtitle={`Welcome back, ${serverUser?.full_name?.split(' ')[0] || 'School Admin'}`}
-    >
-      <div className="space-y-6">
+    <SchoolAdminLayout title="Dashboard" activeRoute="/school-admin/dashboard">
+      <div>
 
         {/* Stat Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -407,6 +404,6 @@ export default function SchoolAdminDashboard({ serverUser }: Props) {
           </div>
         </div>
       </div>
-    </PortalLayout>
+    </SchoolAdminLayout>
   )
 }

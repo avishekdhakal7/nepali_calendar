@@ -180,7 +180,7 @@ export default function CalendarBuilderPage() {
                 onChange={e => setBsYear(parseInt(e.target.value))}
                 className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-white text-lg font-semibold focus:outline-none focus:border-blue-500"
               >
-                {Array.from({ length: 50 }, (_, i) => BS_YEAR_START + i).map(y => (
+                {Array.from({ length: 118 }, (_, i) => BS_YEAR_START + i).map(y => (
                   <option key={y} value={y}>{y}</option>
                 ))}
               </select>

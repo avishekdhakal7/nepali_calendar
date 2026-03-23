@@ -14,11 +14,17 @@ export const EVENT_COLORS: Record<EventType, string> = {
   day_off: 'bg-zinc-500',
 };
 
+export interface DateClickResult {
+  bs: BsDay;
+  rect: DOMRect;
+}
+
 interface BsCalendarGridProps {
   selectedAdDate?: string;
-  onDateSelect?: (bs: BsDay) => void;
+  onDateSelect?: (result: DateClickResult) => void;
   className?: string;
   events?: CalendarEvent[];
+  selectedDates?: string[];
 }
 
 const DAY_NAMES_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -60,7 +66,7 @@ function formatAdDate(ad: string): string {
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
-export default function BsCalendarGrid({ selectedAdDate, onDateSelect, className = '', events }: BsCalendarGridProps) {
+export default function BsCalendarGrid({ selectedAdDate, onDateSelect, className = '', events, selectedDates }: BsCalendarGridProps) {
   const [yearData, setYearData] = useState<Record<number, BsYearData>>(() => {
     const local = getLocalStorageYears();
     if (local) return local;
@@ -120,6 +126,12 @@ export default function BsCalendarGrid({ selectedAdDate, onDateSelect, className
   const [bsYear, setBsYear] = useState(() => todayBs?.bsYear || availableYears.find(y => y >= 2083) || 2083);
   const [bsMonth, setBsMonth] = useState(() => todayBs?.bsMonth || 1);
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (selectedDates && selectedDates.length === 0) {
+      setSelectedDay(null);
+    }
+  }, [selectedDates]);
 
   useEffect(() => {
     if (todayBs) {
@@ -197,9 +209,10 @@ export default function BsCalendarGrid({ selectedAdDate, onDateSelect, className
     }
   }, [bsMonth, bsYear, availableYears]);
 
-  const handleDayClick = useCallback((day: BsDay) => {
+  const handleDayClick = useCallback((day: BsDay, e: React.MouseEvent<HTMLButtonElement>) => {
     setSelectedDay(day.bsDay);
-    onDateSelect?.(day);
+    const rect = (e.currentTarget as HTMLButtonElement).getBoundingClientRect();
+    onDateSelect?.({ bs: day, rect });
   }, [onDateSelect]);
 
   const emptyCells = firstDayOfMonth;
@@ -267,7 +280,8 @@ export default function BsCalendarGrid({ selectedAdDate, onDateSelect, className
         {cells.map((day, i) => {
           if (!day) return <div key={`empty-${i}`} className="aspect-square" />;
 
-          const isSelected = selectedDay === day.bsDay;
+          const isPending = selectedDates?.includes(day.ad);
+          const isClicked = selectedDay === day.bsDay;
           const isToday = day.ad === todayAd;
           const adDisplay = formatAdDate(day.ad);
           const dayEvents = eventMap[day.ad] || [];
@@ -279,21 +293,22 @@ export default function BsCalendarGrid({ selectedAdDate, onDateSelect, className
           return (
             <button
               key={day.bs}
-              onClick={() => handleDayClick(day)}
+              onClick={e => handleDayClick(day, e)}
               className={`
                 aspect-square flex flex-col items-center justify-center rounded text-xs
                 transition-colors cursor-pointer relative overflow-hidden
-                ${isSelected ? 'bg-blue-600 text-white' : ''}
-                ${isToday && !isSelected ? 'ring-2 ring-blue-400' : ''}
-                ${!isSelected && !isToday && sortedEvents.length === 0 ? 'text-zinc-300 hover:bg-zinc-700' : ''}
-                ${!isSelected && sortedEvents.length > 0 ? `${EVENT_COLORS[primaryEvent.event_type]} text-white` : ''}
+                ${isPending ? 'bg-pink-600 text-white' : ''}
+                ${isClicked && !isPending ? 'ring-2 ring-pink-400' : ''}
+                ${!isPending && !isClicked && !isToday && sortedEvents.length === 0 ? 'text-zinc-300 hover:bg-zinc-700' : ''}
+                ${!isPending && !isClicked && sortedEvents.length > 0 ? `${EVENT_COLORS[primaryEvent.event_type]} text-white` : ''}
+                ${isToday && !isPending && !isClicked ? 'ring-1 ring-purple-400' : ''}
               `}
             >
-              {isToday && !isSelected && (
-                <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-blue-500 z-10" />
+              {isToday && !isPending && !isClicked && (
+                <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-purple-400 z-10" />
               )}
-              <span className={`font-bold text-sm ${isToday && !isSelected && sortedEvents.length === 0 ? 'text-blue-300' : ''}`}>{day.bsDay}</span>
-              <span className={`text-[9px] ${isSelected ? 'text-blue-200' : ''}`}>{adDisplay}</span>
+              <span className={`font-bold text-sm ${isToday && !isPending && !isClicked && sortedEvents.length === 0 ? 'text-purple-300' : ''}`}>{day.bsDay}</span>
+              <span className={`text-[9px]`}>{adDisplay}</span>
             </button>
           );
         })}
@@ -303,7 +318,7 @@ export default function BsCalendarGrid({ selectedAdDate, onDateSelect, className
         <div className="mt-3 pt-3 border-t border-zinc-700 text-center">
           <span className="font-bold text-white">{highlightAd.bsDay} {currentMonthInfo?.nameNp} {bsYear}</span>
           <span className="text-zinc-500 mx-1">—</span>
-          <span className="text-blue-400">{highlightAd.ad}</span>
+          <span className="text-pink-400">{highlightAd.ad}</span>
         </div>
       )}
 

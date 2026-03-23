@@ -8,7 +8,7 @@ import SchoolAdminLayout from '@/components/layout/school-admin-layout'
 import { CalendarEvent, EVENT_TYPE_CONFIG, EventType } from '@/types/calendar'
 import { adToBsApi } from '@/lib/date-utils'
 import BsCalendarGrid from '@/components/calendar/BsCalendarGrid'
-import type { BsDay } from '@/lib/bsCalendar'
+import type { DateClickResult } from '@/components/calendar/BsCalendarGrid'
 
 interface SelectedDate {
   bs_date: string
@@ -77,7 +77,8 @@ export default function ManageCalendarPage() {
     setSelectedDates(prev => prev.filter(d => d.ad_date !== adDate))
   }
 
-  function addBsDate(bs: BsDay) {
+  function addBsDate(result: DateClickResult) {
+    const bs = result.bs
     const existingEvent = events.find(e => e.date_ad === bs.ad)
     if (existingEvent) {
       setError(`"${existingEvent.name}" already exists on ${bs.ad} — delete it first to change`)
@@ -85,7 +86,10 @@ export default function ManageCalendarPage() {
       return
     }
     const alreadySelected = selectedDates.find(d => d.ad_date === bs.ad)
-    if (alreadySelected) return
+    if (alreadySelected) {
+      removeDate(bs.ad)
+      return
+    }
     setSelectedDates(prev => [...prev, { bs_date: bs.bs, ad_date: bs.ad, customName: '' }])
   }
 
@@ -139,6 +143,7 @@ export default function ManageCalendarPage() {
           <BsCalendarGrid
             onDateSelect={addBsDate}
             events={events}
+            selectedDates={selectedDates.map(d => d.ad_date)}
           />
         </div>
         {/* Form + Selected Dates */}
@@ -208,7 +213,7 @@ export default function ManageCalendarPage() {
             {selectedDates.length > 0 && (
               <div className="space-y-1 max-h-48 overflow-y-auto">
                 {[...selectedDates].sort((a, b) => new Date(a.ad_date).getTime() - new Date(b.ad_date).getTime()).map((date, i) => (
-                  <div key={date.ad_date} className="flex items-center gap-2 bg-zinc-800/40 rounded px-2 py-1.5">
+                  <div key={`${date.ad_date}-${i}`} className="flex items-center gap-2 bg-zinc-800/40 rounded px-2 py-1.5">
                     <span className="text-[9px] text-pink-400 font-medium w-4">#{i + 1}</span>
                     <span className="text-[10px] text-white font-mono flex-1">{date.ad_date} ({date.bs_date})</span>
                     <input
