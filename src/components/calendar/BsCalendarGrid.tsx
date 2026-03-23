@@ -60,17 +60,20 @@ export default function BsCalendarGrid({ selectedAdDate, onDateSelect, className
   });
 
   const availableYears = Object.keys(yearData).map(Number).sort();
-  const currentYear = new Date().getFullYear();
-  const currentBsYear = (() => {
+  const todayAd = (() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  })();
+  const todayBs = (() => {
     for (const y of availableYears) {
-      const days = yearData[y]?.days || [];
-      if (days.some(d => d.ad.startsWith(String(currentYear)))) return y;
+      const found = yearData[y]?.days.find(d => d.ad === todayAd);
+      if (found) return found;
     }
-    return availableYears.find(y => y >= 2083) || 2083;
+    return null;
   })();
 
-  const [bsYear, setBsYear] = useState(currentBsYear || availableYears[0] || 2083);
-  const [bsMonth, setBsMonth] = useState(1);
+  const [bsYear, setBsYear] = useState(() => todayBs?.bsYear || availableYears.find(y => y >= 2083) || 2083);
+  const [bsMonth, setBsMonth] = useState(() => todayBs?.bsMonth || 1);
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
 
   const yearDays = yearData[bsYear]?.days || [];
@@ -203,7 +206,7 @@ export default function BsCalendarGrid({ selectedAdDate, onDateSelect, className
           if (!day) return <div key={`empty-${i}`} className="aspect-square" />;
 
           const isSelected = selectedDay === day.bsDay;
-          const isToday = highlightAd?.bs === day.bs;
+          const isToday = day.ad === todayAd;
           const adDisplay = formatAdDate(day.ad);
 
           return (
@@ -212,13 +215,16 @@ export default function BsCalendarGrid({ selectedAdDate, onDateSelect, className
               onClick={() => handleDayClick(day)}
               className={`
                 aspect-square flex flex-col items-center justify-center rounded text-xs
-                transition-colors cursor-pointer
+                transition-colors cursor-pointer relative
                 ${isSelected ? 'bg-blue-600 text-white' : ''}
-                ${isToday && !isSelected ? 'bg-blue-900/50 text-blue-300 font-medium ring-2 ring-blue-400' : ''}
+                ${isToday && !isSelected ? 'ring-2 ring-blue-400' : ''}
                 ${!isSelected && !isToday ? 'text-zinc-300 hover:bg-zinc-700' : ''}
               `}
             >
-              <span className="font-bold text-sm">{day.bsDay}</span>
+              {isToday && !isSelected && (
+                <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-blue-500" />
+              )}
+              <span className={`font-bold text-sm ${isToday && !isSelected ? 'text-blue-300' : ''}`}>{day.bsDay}</span>
               <span className={`text-[9px] ${isSelected ? 'text-blue-200' : 'text-zinc-500'}`}>{adDisplay}</span>
             </button>
           );
