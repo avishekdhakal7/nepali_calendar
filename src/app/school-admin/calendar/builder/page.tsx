@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ArrowLeft, ArrowRight, Check, Download, AlertTriangle, Calendar, ChevronDown, ChevronUp } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, AlertTriangle, Calendar, ChevronDown, ChevronUp, Save, Loader2 } from 'lucide-react';
 import SchoolAdminLayout from '@/components/layout/school-admin-layout';
 import {
   BS_MONTHS_DATA,
@@ -10,13 +10,13 @@ import {
   detectFebruary,
   generatePreview,
   generateYearJson,
-  downloadJson,
   formatDate,
   getDayName,
   getMonthInfo,
   TYPICAL_MONTH_DAYS,
   PreviewMonth,
 } from '@/lib/calendar-builder';
+import { saveCalendarYear, checkCalendarYearExists } from '@/lib/actions/save-calendar';
 
 const BS_YEAR_START = 2083;
 
@@ -36,6 +36,10 @@ export default function CalendarBuilderPage() {
   const [febUserSays, setFebUserSays] = useState<number | null>(null);
   const [preview, setPreview] = useState<{ months: PreviewMonth[]; totalDays: number } | null>(null);
   const [expandedMonth, setExpandedMonth] = useState<number | null>(null);
+  const [yearExists, setYearExists] = useState(false);
+  const [saveResult, setSaveResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [confirmOverwrite, setConfirmOverwrite] = useState(false);
 
   const monthValidation = validateMonthDays(monthDays);
   const totalDaysFromMonths = monthValidation.total;
@@ -92,11 +96,24 @@ export default function CalendarBuilderPage() {
     setPreview(p);
   };
 
-  const handleDownload = () => {
+  const handleSave = async () => {
     if (!baisakh1Date) return;
+    setSaving(true);
+    setSaveResult(null);
+    
     const data = generateYearJson(bsYear, monthDays, baisakh1Date);
-    downloadJson(bsYear, data);
+    const result = await saveCalendarYear(bsYear, data);
+    
+    setSaveResult(result);
+    setSaving(false);
+    setConfirmOverwrite(false);
   };
+
+  useEffect(() => {
+    checkCalendarYearExists(bsYear).then(setYearExists);
+    setSaveResult(null);
+    setConfirmOverwrite(false);
+  }, [bsYear]);
 
   const step2Valid = monthValidation.valid;
   const step3Valid = baisakh1Ad !== '' && baisakh1DayNameOverride !== '';
@@ -106,12 +123,12 @@ export default function CalendarBuilderPage() {
 
   const canProceed = () => {
     switch (step) {
-      case 1: return bsYear >= BS_YEAR_START;
+      case 1: return bsYear >= BS_YEAR_START && (!yearExists || confirmOverwrite);
       case 2: return step2Valid;
       case 3: return step3Valid;
       case 4: return step4Valid;
       case 5: return step5Valid;
-      case 6: return step6Valid;
+      case 6: return step6Valid && !saveResult?.success;
       default: return false;
     }
   };
@@ -155,7 +172,7 @@ export default function CalendarBuilderPage() {
           {step === 1 && (
             <div>
               <h2 className="text-lg font-semibold text-white mb-1">Select BS Year</h2>
-              <p className="text-sm text-zinc-500 mb-6">Choose the Bikram Sambat year to create. Years 2000–2082 are read-only.</p>
+              <p className="text-sm text-zinc-500 mb-4">Choose the Bikram Sambat year to create. Years 2000–2082 are read-only.</p>
 
               <label className="block text-sm text-zinc-400 mb-2">Bikram Sambat Year</label>
               <select
@@ -167,6 +184,45 @@ export default function CalendarBuilderPage() {
                   <option key={y} value={y}>{y}</option>
                 ))}
               </select>
+
+              {yearExists && (
+                <div className="mt-4 space-y-3">
+                  <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+                    <p className="text-sm text-red-300 flex items-center gap-2">
+                      <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+                      <span><strong>BS {bsYear}</strong> already exists in your data. Creating will replace it.</span>
+                    </p>
+                  </div>
+
+                  {!confirmOverwrite ? (
+                    <button
+                      onClick={() => setConfirmOverwrite(true)}
+                      className="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors"
+                    >
+                      I understand — replace BS {bsYear}
+                    </button>
+                  ) : (
+                    <div className="p-3 bg-red-500/20 border-2 border-red-500/50 rounded-lg text-center">
+                      <p className="text-sm text-red-300 font-semibold mb-2">Are you absolutely sure?</p>
+                      <p className="text-xs text-red-400 mb-3">This will permanently replace the existing BS {bsYear} calendar data.</p>
+                      <div className="flex gap-3">
+                        <button
+                          onClick={() => setConfirmOverwrite(false)}
+                          className="flex-1 py-2 bg-zinc-700 hover:bg-zinc-600 text-white text-sm font-medium rounded-lg transition-colors"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={() => {}}
+                          className="flex-1 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg transition-colors"
+                        >
+                          Yes, replace it
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div className="mt-4 p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
                 <p className="text-sm text-amber-300 flex items-center gap-2">
@@ -505,28 +561,63 @@ export default function CalendarBuilderPage() {
                 Next
                 <ArrowRight className="w-4 h-4" />
               </button>
+            ) : saveResult?.success ? (
+              <div className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white text-sm font-medium rounded-lg">
+                <Check className="w-4 h-4" />
+                Saved!
+              </div>
             ) : (
               <button
-                onClick={handleDownload}
-                className="flex items-center gap-2 px-6 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
+                onClick={handleSave}
+                disabled={saving || (yearExists && !confirmOverwrite)}
+                className="flex items-center gap-2 px-6 py-2 bg-green-600 hover:bg-green-700 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors"
               >
-                <Download className="w-4 h-4" />
-                Download JSON
+                {saving ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4" />
+                    Save to Calendar
+                  </>
+                )}
               </button>
             )}
           </div>
         </div>
 
-        {/* Download Instructions */}
-        {step === 6 && (
+        {/* Save Result */}
+        {step === 6 && saveResult && (
+          <div className={`mt-4 p-4 rounded-xl ${
+            saveResult.success 
+              ? 'bg-green-500/10 border border-green-500/30' 
+              : 'bg-red-500/10 border border-red-500/30'
+          }`}>
+            <p className={`text-sm font-medium ${saveResult.success ? 'text-green-400' : 'text-red-400'}`}>
+              {saveResult.message}
+            </p>
+            {saveResult.success && (
+              <div className="mt-3 pt-3 border-t border-green-500/20">
+                <p className="text-sm text-zinc-400 mb-1">Next steps:</p>
+                <ol className="text-xs text-zinc-500 space-y-0.5 list-decimal list-inside">
+                  <li>Commit and push to GitHub</li>
+                  <li>The calendar will automatically include BS {bsYear}</li>
+                </ol>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Instructions */}
+        {step === 6 && !saveResult && (
           <div className="mt-4 p-4 bg-zinc-900/40 border border-zinc-800/40 rounded-xl">
-            <h3 className="text-sm font-semibold text-white mb-2">After Downloading:</h3>
-            <ol className="text-sm text-zinc-500 space-y-1 list-decimal list-inside">
-              <li>Save the downloaded <code className="text-blue-400">{bsYear}.json</code> file</li>
-              <li>Copy it to <code className="text-blue-400">src/data/bs-calendar/{bsYear}.json</code></li>
-              <li>Commit and push to GitHub</li>
-              <li>The app will automatically include the new year on next deploy</li>
-            </ol>
+            <h3 className="text-sm font-semibold text-white mb-2">Ready to Save?</h3>
+            <p className="text-sm text-zinc-500">
+              Click <strong className="text-green-400">Save to Calendar</strong> to save <strong className="text-white">BS {bsYear}</strong>. 
+              {yearExists && <span className="text-amber-400"> This will replace the existing data.</span>}
+            </p>
           </div>
         )}
       </div>
