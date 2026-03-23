@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Calendar, Pencil } from 'lucide-react'
+import { Calendar, Pencil, Plus } from 'lucide-react'
 import api from '@/lib/api'
 import SchoolAdminLayout from '@/components/layout/school-admin-layout'
 import { CalendarEvent, EVENT_TYPE_CONFIG, EventType } from '@/types/calendar'
@@ -42,6 +42,13 @@ export default function CalendarPage() {
               <h2 className="text-sm font-semibold text-white">Events</h2>
             </div>
             <RefreshCalendarButton />
+            <button
+              onClick={() => router.push('/school-admin/calendar/builder')}
+              className="flex items-center gap-1.5 px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-medium rounded-lg transition-colors"
+            >
+              <Plus className="w-3 h-3" />
+              Build Year
+            </button>
             <button
               onClick={() => router.push('/school-admin/calendar/new')}
               className="flex items-center gap-1.5 px-2.5 py-1 bg-pink-600 hover:bg-pink-700 text-white text-[10px] font-medium rounded-lg transition-colors"
