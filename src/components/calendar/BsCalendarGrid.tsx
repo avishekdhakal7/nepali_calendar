@@ -144,20 +144,20 @@ export default function BsCalendarGrid({ selectedAdDate, onDateSelect, className
   while (cells.length % 7 !== 0) cells.push(null);
 
   return (
-    <div className={`border rounded-lg p-4 bg-white dark:bg-zinc-900 ${className}`}>
+    <div className={`border border-zinc-700/50 rounded-lg p-4 bg-zinc-900/60 ${className}`}>
       <div className="flex items-center justify-between mb-4">
-        <button onClick={goToPrevMonth} className="p-1 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded">
+        <button onClick={goToPrevMonth} className="p-1 hover:bg-zinc-700 rounded text-zinc-400 hover:text-white">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <polyline points="15 18 9 12 15 6" />
           </svg>
         </button>
 
         <div className="text-center">
-          <div className="font-semibold text-lg">{monthInfo?.nameNp || ''} {bsYear}</div>
-          <div className="text-xs text-zinc-500">{monthInfo?.name || ''} {bsYear}</div>
+          <div className="font-semibold text-lg text-white">{monthInfo?.nameNp || ''} {bsYear}</div>
+          <div className="text-xs text-zinc-400">{monthInfo?.name || ''} {bsYear}</div>
         </div>
 
-        <button onClick={goToNextMonth} className="p-1 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded">
+        <button onClick={goToNextMonth} className="p-1 hover:bg-zinc-700 rounded text-zinc-400 hover:text-white">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <polyline points="9 18 15 12 9 6" />
           </svg>
@@ -166,7 +166,7 @@ export default function BsCalendarGrid({ selectedAdDate, onDateSelect, className
 
       <div className="grid grid-cols-7 gap-1 mb-1">
         {DAY_NAMES_SHORT.map((d, i) => (
-          <div key={d} className="text-center text-xs font-medium text-zinc-500 py-1">
+            <div key={d} className="text-center text-xs font-medium text-zinc-400 py-1">
             <span className="hidden sm:inline">{d}</span>
             <span className="sm:hidden">{DAY_NAMES_NP[i]}</span>
           </div>
@@ -188,8 +188,8 @@ export default function BsCalendarGrid({ selectedAdDate, onDateSelect, className
                 aspect-square flex flex-col items-center justify-center rounded text-sm
                 transition-colors cursor-pointer
                 ${isSelected ? 'bg-blue-600 text-white font-semibold' : ''}
-                ${isToday && !isSelected ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 font-medium ring-2 ring-blue-400' : ''}
-                ${!isSelected && !isToday ? 'hover:bg-zinc-100 dark:hover:bg-zinc-800' : ''}
+                ${isToday && !isSelected ? 'bg-blue-900/50 text-blue-300 font-medium ring-2 ring-blue-400' : ''}
+                ${!isSelected && !isToday ? 'text-zinc-300 hover:bg-zinc-700' : ''}
               `}
               title={`${day.bsDay} ${monthInfo?.nameNp} ${bsYear} (${day.dayName})`}
             >
@@ -201,12 +201,12 @@ export default function BsCalendarGrid({ selectedAdDate, onDateSelect, className
       </div>
 
       {selectedDay && highlightAd && (
-        <div className="mt-3 pt-3 border-t text-center text-sm">
-          <span className="font-medium">{highlightAd.bsDay} {monthInfo?.nameNp} {bsYear}</span>
-          <span className="text-zinc-400 mx-1">|</span>
-          <span className="text-zinc-500">{highlightAd.dayName}</span>
-          <span className="text-zinc-400 mx-1">|</span>
-          <span className="text-blue-600">{highlightAd.ad}</span>
+        <div className="mt-3 pt-3 border-t border-zinc-700 text-center text-sm">
+          <span className="font-medium text-white">{highlightAd.bsDay} {monthInfo?.nameNp} {bsYear}</span>
+          <span className="text-zinc-500 mx-1">|</span>
+          <span className="text-zinc-400">{highlightAd.dayName}</span>
+          <span className="text-zinc-500 mx-1">|</span>
+          <span className="text-blue-400">{highlightAd.ad}</span>
         </div>
       )}
 
@@ -216,7 +216,7 @@ export default function BsCalendarGrid({ selectedAdDate, onDateSelect, className
             key={y}
             onClick={() => { setBsYear(y); setBsMonth(1); setSelectedDay(null); }}
             className={`text-xs px-2 py-1 rounded ${
-              y === bsYear ? 'bg-blue-600 text-white' : 'bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700'
+              y === bsYear ? 'bg-blue-600 text-white' : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300'
             }`}
           >
             {y}
