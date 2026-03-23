@@ -35,11 +35,10 @@ function getLocalStorageYears(): Record<number, BsYearData> | null {
   } catch { return null; }
 }
 
-function getAdYearRange(days: BsDay[], bsYear: number): string {
-  if (!days.length) return '';
-  const adYears = [...new Set(days.map(d => parseInt(d.ad.split('-')[0])))];
-  if (adYears.length === 1) return `${adYears[0]}`;
-  return `${Math.min(...adYears)}–${Math.max(...adYears)}`;
+function getMonthEnglishYear(days: BsDay[], month: number): number | null {
+  const monthDays = days.filter(d => d.bsMonth === month);
+  if (!monthDays.length) return null;
+  return parseInt(monthDays[0].ad.split('-')[0]);
 }
 
 function formatAdDate(ad: string): string {
@@ -73,7 +72,7 @@ export default function BsCalendarGrid({ selectedAdDate, onDateSelect, className
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
 
   const yearDays = yearData[bsYear]?.days || [];
-  const yearAdRange = getAdYearRange(yearDays, bsYear);
+  const monthEnglishYear = getMonthEnglishYear(yearDays, bsMonth) || 0;
 
   const monthDays = yearDays.filter(d => d.bsMonth === bsMonth);
   const firstDayOfMonth = monthDays.length > 0 ? monthDays[0].dayOfWeek : 0;
@@ -165,7 +164,6 @@ export default function BsCalendarGrid({ selectedAdDate, onDateSelect, className
                 <option key={y} value={y}>{y}</option>
               ))}
             </select>
-            <span className="text-zinc-500 text-sm">{yearAdRange}</span>
           </div>
           <div className="flex items-center gap-2">
             <select
@@ -177,6 +175,7 @@ export default function BsCalendarGrid({ selectedAdDate, onDateSelect, className
                 <option key={m.num} value={m.num}>{m.nameNp} ({m.name})</option>
               ))}
             </select>
+            <span className="text-zinc-400 text-sm font-medium">{monthEnglishYear}</span>
           </div>
         </div>
 
