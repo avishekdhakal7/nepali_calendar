@@ -35,10 +35,12 @@ function getLocalStorageYears(): Record<number, BsYearData> | null {
   } catch { return null; }
 }
 
-function getMonthEnglishYear(days: BsDay[], month: number): number | null {
+function getMonthEnglishYear(days: BsDay[], month: number): { primary: number; secondary?: number } | null {
   const monthDays = days.filter(d => d.bsMonth === month);
   if (!monthDays.length) return null;
-  return parseInt(monthDays[0].ad.split('-')[0]);
+  const adYears = [...new Set(monthDays.map(d => parseInt(d.ad.split('-')[0])))];
+  if (adYears.length === 1) return { primary: adYears[0] };
+  return { primary: adYears[0], secondary: adYears[1] };
 }
 
 function formatAdDate(ad: string): string {
@@ -72,7 +74,7 @@ export default function BsCalendarGrid({ selectedAdDate, onDateSelect, className
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
 
   const yearDays = yearData[bsYear]?.days || [];
-  const monthEnglishYear = getMonthEnglishYear(yearDays, bsMonth) || 0;
+  const monthEnglishYear = getMonthEnglishYear(yearDays, bsMonth);
 
   const monthDays = yearDays.filter(d => d.bsMonth === bsMonth);
   const firstDayOfMonth = monthDays.length > 0 ? monthDays[0].dayOfWeek : 0;
@@ -175,7 +177,11 @@ export default function BsCalendarGrid({ selectedAdDate, onDateSelect, className
                 <option key={m.num} value={m.num}>{m.nameNp} ({m.name})</option>
               ))}
             </select>
-            <span className="text-zinc-400 text-sm font-medium">{monthEnglishYear}</span>
+            <span className="text-zinc-400 text-sm font-medium">
+              {monthEnglishYear?.secondary
+                ? `${monthEnglishYear.primary}/${monthEnglishYear.secondary}`
+                : `${monthEnglishYear?.primary || ''}`}
+            </span>
           </div>
         </div>
 
