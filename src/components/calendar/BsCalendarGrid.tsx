@@ -71,7 +71,40 @@ export default function BsCalendarGrid({ selectedAdDate, onDateSelect, className
     return staticYears;
   });
 
-  const availableYears = Object.keys(yearData).map(Number).sort();
+  const [dynamicYears, setDynamicYears] = useState<number[]>([]);
+  const [loadedDynamicYears, setLoadedDynamicYears] = useState<Set<number>>(new Set());
+
+  useEffect(() => {
+    fetch('/api/calendar/years')
+      .then(res => res.json())
+      .then(data => {
+        if (data.years) {
+          setDynamicYears(data.years);
+        }
+      })
+      .catch(console.error);
+  }, []);
+
+  useEffect(() => {
+    if (!dynamicYears.length) return;
+    for (const y of dynamicYears) {
+      if (!loadedDynamicYears.has(y) && !yearData[y]) {
+        fetch(`/api/calendar/years/${y}`)
+          .then(res => res.json())
+          .then(data => {
+            if (data.year && data.days) {
+              setYearData(prev => ({ ...prev, [y]: data }));
+              setLoadedDynamicYears(prev => new Set([...prev, y]));
+            }
+          })
+          .catch(console.error);
+      }
+    }
+  }, [dynamicYears]);
+
+  const allYears = [...new Set([...Object.keys(yearData).map(Number), ...dynamicYears])].sort((a, b) => a - b);
+  const availableYears = allYears;
+
   const todayAd = (() => {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -87,6 +120,13 @@ export default function BsCalendarGrid({ selectedAdDate, onDateSelect, className
   const [bsYear, setBsYear] = useState(() => todayBs?.bsYear || availableYears.find(y => y >= 2083) || 2083);
   const [bsMonth, setBsMonth] = useState(() => todayBs?.bsMonth || 1);
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (todayBs) {
+      setBsYear(todayBs.bsYear);
+      setBsMonth(todayBs.bsMonth);
+    }
+  }, [todayBs]);
 
   const isOnToday = todayBs ? (bsYear === todayBs.bsYear && bsMonth === todayBs.bsMonth) : false;
 
@@ -130,14 +170,6 @@ export default function BsCalendarGrid({ selectedAdDate, onDateSelect, className
     window.addEventListener('bs-calendar-updated', handler);
     return () => window.removeEventListener('bs-calendar-updated', handler);
   }, []);
-
-  useEffect(() => {
-    if (highlightAd) {
-      if (highlightAd.bsYear !== bsYear) setBsYear(highlightAd.bsYear);
-      setTimeout(() => setBsMonth(highlightAd.bsMonth), 0);
-      setTimeout(() => setSelectedDay(highlightAd.bsDay), 10);
-    }
-  }, [selectedAdDate]);
 
   const goToPrevMonth = useCallback(() => {
     if (bsMonth === 1) {

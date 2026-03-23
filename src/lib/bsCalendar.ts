@@ -82,23 +82,6 @@ import * as raw2080 from '@/data/bs-calendar/2080.json';
 import * as raw2081 from '@/data/bs-calendar/2081.json';
 import * as raw2082 from '@/data/bs-calendar/2082.json';
 import * as raw2083 from '@/data/bs-calendar/2083.json';
-import * as raw2084 from '@/data/bs-calendar/2084.json';
-import * as raw2085 from '@/data/bs-calendar/2085.json';
-import * as raw2086 from '@/data/bs-calendar/2086.json';
-import * as raw2087 from '@/data/bs-calendar/2087.json';
-import * as raw2088 from '@/data/bs-calendar/2088.json';
-import * as raw2089 from '@/data/bs-calendar/2089.json';
-import * as raw2090 from '@/data/bs-calendar/2090.json';
-import * as raw2091 from '@/data/bs-calendar/2091.json';
-import * as raw2092 from '@/data/bs-calendar/2092.json';
-import * as raw2093 from '@/data/bs-calendar/2093.json';
-import * as raw2094 from '@/data/bs-calendar/2094.json';
-import * as raw2095 from '@/data/bs-calendar/2095.json';
-import * as raw2096 from '@/data/bs-calendar/2096.json';
-import * as raw2097 from '@/data/bs-calendar/2097.json';
-import * as raw2098 from '@/data/bs-calendar/2098.json';
-import * as raw2099 from '@/data/bs-calendar/2099.json';
-import * as raw2100 from '@/data/bs-calendar/2100.json';
 
 export interface BsDay {
   ad: string;
@@ -134,11 +117,7 @@ const allRaw = {
   2065: raw2065, 2066: raw2066, 2067: raw2067, 2068: raw2068, 2069: raw2069,
   2070: raw2070, 2071: raw2071, 2072: raw2072, 2073: raw2073, 2074: raw2074,
   2075: raw2075, 2076: raw2076, 2077: raw2077, 2078: raw2078, 2079: raw2079,
-  2080: raw2080, 2081: raw2081, 2082: raw2082, 2083: raw2083, 2084: raw2084,
-  2085: raw2085, 2086: raw2086, 2087: raw2087, 2088: raw2088, 2089: raw2089,
-  2090: raw2090, 2091: raw2091, 2092: raw2092, 2093: raw2093, 2094: raw2094,
-  2095: raw2095, 2096: raw2096, 2097: raw2097, 2098: raw2098, 2099: raw2099,
-  2100: raw2100,
+  2080: raw2080, 2081: raw2081, 2082: raw2082, 2083: raw2083,
 };
 
 const yearRegistry: Record<number, BsYearData> = {};

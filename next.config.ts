@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
     // Optimize package imports for better tree-shaking
     optimizePackageImports: ['lucide-react'],
   },
+  serverExternalPackages: ['fs'],
 
   // Compiler options to reduce bundle size
   compiler: {
