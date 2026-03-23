@@ -2,11 +2,23 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { getAvailableBsYears, getBsYearDays, BsDay, BsYearData } from '@/lib/bsCalendar';
+import { CalendarEvent, EVENT_TYPE_CONFIG, EventType } from '@/types/calendar';
+
+const EVENT_DOT_ORDER: EventType[] = ['holiday', 'exam', 'event', 'special_day', 'day_off'];
+
+export const EVENT_COLORS: Record<EventType, string> = {
+  holiday: 'bg-red-500',
+  exam: 'bg-yellow-500',
+  event: 'bg-blue-500',
+  special_day: 'bg-green-500',
+  day_off: 'bg-zinc-500',
+};
 
 interface BsCalendarGridProps {
   selectedAdDate?: string;
   onDateSelect?: (bs: BsDay) => void;
   className?: string;
+  events?: CalendarEvent[];
 }
 
 const DAY_NAMES_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -48,7 +60,7 @@ function formatAdDate(ad: string): string {
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
-export default function BsCalendarGrid({ selectedAdDate, onDateSelect, className = '' }: BsCalendarGridProps) {
+export default function BsCalendarGrid({ selectedAdDate, onDateSelect, className = '', events }: BsCalendarGridProps) {
   const [yearData, setYearData] = useState<Record<number, BsYearData>>(() => {
     const local = getLocalStorageYears();
     if (local) return local;
@@ -87,6 +99,14 @@ export default function BsCalendarGrid({ selectedAdDate, onDateSelect, className
   };
 
   const yearDays = yearData[bsYear]?.days || [];
+
+  const eventMap: Record<string, CalendarEvent[]> = {};
+  if (events) {
+    for (const ev of events) {
+      if (!eventMap[ev.date_ad]) eventMap[ev.date_ad] = [];
+      eventMap[ev.date_ad].push(ev);
+    }
+  }
   const monthEnglishYear = getMonthEnglishYear(yearDays, bsMonth);
 
   const monthDays = yearDays.filter(d => d.bsMonth === bsMonth);
@@ -218,6 +238,10 @@ export default function BsCalendarGrid({ selectedAdDate, onDateSelect, className
           const isSelected = selectedDay === day.bsDay;
           const isToday = day.ad === todayAd;
           const adDisplay = formatAdDate(day.ad);
+          const dayEvents = eventMap[day.ad] || [];
+          const sortedEvents = [...dayEvents].sort(
+            (a, b) => EVENT_DOT_ORDER.indexOf(a.event_type) - EVENT_DOT_ORDER.indexOf(b.event_type)
+          );
 
           return (
             <button
@@ -236,6 +260,13 @@ export default function BsCalendarGrid({ selectedAdDate, onDateSelect, className
               )}
               <span className={`font-bold text-sm ${isToday && !isSelected ? 'text-blue-300' : ''}`}>{day.bsDay}</span>
               <span className={`text-[9px] ${isSelected ? 'text-blue-200' : 'text-zinc-500'}`}>{adDisplay}</span>
+              {sortedEvents.length > 0 && (
+                <div className="absolute bottom-1 flex gap-0.5">
+                  {sortedEvents.slice(0, 4).map((ev, idx) => (
+                    <span key={idx} className={`w-1.5 h-1.5 rounded-full ${EVENT_COLORS[ev.event_type]}`} />
+                  ))}
+                </div>
+              )}
             </button>
           );
         })}
