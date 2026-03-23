@@ -15,8 +15,8 @@ const BS_MONTHS_NP = {
 };
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
-const START_DATE = new Date('2026-04-14');
-const END_DATE = new Date('2036-04-13');
+const START_DATE = new Date('1943-04-14');
+const END_DATE = new Date('2043-04-14');
 const OUTPUT_DIR = path.join(__dirname, 'bs-calendar-data');
 
 function formatAd(d) {
@@ -49,7 +49,7 @@ async function main() {
 
   const yearMap = {};
   let done = 0;
-  const CONCURRENCY = 20;
+  const CONCURRENCY = 50;
   const queue = [];
 
   const startTime = Date.now();

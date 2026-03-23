@@ -39,9 +39,24 @@ export default function BsCalendarGrid({ selectedAdDate, onDateSelect, className
   });
 
   const availableYears = Object.keys(yearData).map(Number).sort();
-  const defaultYear = availableYears[0] || 2083;
+  const currentYear = new Date().getFullYear();
+  const currentBsYear = (() => {
+    for (const y of availableYears) {
+      const days = yearData[y]?.days || [];
+      if (days.some(d => d.ad.startsWith(String(currentYear)))) return y;
+    }
+    return availableYears.find(y => y >= 2083) || 2083;
+  })();
+  const defaultYear = currentBsYear || availableYears[0] || 2083;
 
   const [bsYear, setBsYear] = useState(defaultYear);
+
+  const visibleYears = (() => {
+    if (availableYears.length <= 15) return availableYears;
+    const idx = availableYears.indexOf(bsYear);
+    const start = Math.max(0, idx - 7);
+    return availableYears.slice(start, start + 15);
+  })();
   const [bsMonth, setBsMonth] = useState(1);
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
 
@@ -211,7 +226,7 @@ export default function BsCalendarGrid({ selectedAdDate, onDateSelect, className
       )}
 
       <div className="flex justify-center gap-2 mt-3 flex-wrap">
-        {availableYears.map(y => (
+        {visibleYears.map(y => (
           <button
             key={y}
             onClick={() => { setBsYear(y); setBsMonth(1); setSelectedDay(null); }}
