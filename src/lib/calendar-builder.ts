@@ -89,41 +89,17 @@ export interface LeapYearResult {
 
 export function detectFebruary(start: Date, end: Date): LeapYearResult | null {
   const current = new Date(start);
-  let febYear: number | null = null;
-  let febDays = 0;
-  let prevFebDays = 0;
-
+  
   while (current <= end) {
-    const year = current.getFullYear();
-    const month = current.getMonth();
-
-    if (month === 1) {
-      const day = current.getDate();
-      if (day === 1) {
-        prevFebDays = 0;
-      }
-      prevFebDays++;
-
-      if (day === 28 || day === 29) {
-        const isLeap = (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
-        if (day === 29 || isLeap) {
-          febYear = year;
-          febDays = day;
-        }
-      }
+    if (current.getMonth() === 1) {
+      const febYear = current.getFullYear();
+      const febDays = isLeapYear(febYear) ? 29 : 28;
+      return { febYear, febDays, isLeap: febDays === 29 };
     }
-
     current.setDate(current.getDate() + 1);
-    if (month === 1 && current.getMonth() === 2) break;
   }
 
-  if (febYear === null) {
-    febYear = start.getFullYear();
-    febDays = (febYear % 4 === 0 && febYear % 100 !== 0) || (febYear % 400 === 0) ? 29 : 28;
-    return { febYear, febDays, isLeap: febDays === 29 };
-  }
-
-  return { febYear, febDays, isLeap: febDays === 29 };
+  return null;
 }
 
 export function isLeapYear(year: number): boolean {
