@@ -76,6 +76,16 @@ export default function BsCalendarGrid({ selectedAdDate, onDateSelect, className
   const [bsMonth, setBsMonth] = useState(() => todayBs?.bsMonth || 1);
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
 
+  const isOnToday = todayBs ? (bsYear === todayBs.bsYear && bsMonth === todayBs.bsMonth) : false;
+
+  const goToToday = () => {
+    if (todayBs) {
+      setBsYear(todayBs.bsYear);
+      setBsMonth(todayBs.bsMonth);
+      setSelectedDay(todayBs.bsDay);
+    }
+  };
+
   const yearDays = yearData[bsYear]?.days || [];
   const monthEnglishYear = getMonthEnglishYear(yearDays, bsMonth);
 
@@ -238,6 +248,27 @@ export default function BsCalendarGrid({ selectedAdDate, onDateSelect, className
           <span className="text-blue-400">{highlightAd.ad}</span>
         </div>
       )}
+
+      <div className="flex items-center justify-between mt-3 pt-3 border-t border-zinc-700">
+        <button
+          onClick={goToToday}
+          disabled={isOnToday}
+          className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
+            isOnToday
+              ? 'bg-zinc-800 text-zinc-600 cursor-not-allowed'
+              : 'bg-blue-600 hover:bg-blue-700 text-white'
+          }`}
+        >
+          आज
+        </button>
+
+        <button
+          onClick={() => window.location.reload()}
+          className="px-3 py-1.5 rounded text-sm bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-300 transition-colors"
+        >
+          Refresh
+        </button>
+      </div>
     </div>
   );
 }
