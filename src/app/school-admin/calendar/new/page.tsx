@@ -51,10 +51,10 @@ export default function ManageCalendarPage() {
     try {
       const dateBs = await adToBsApi(new Date(pendingDate))
 
-      const existing = events.find(e => e.date_ad === pendingDate)
-      if (existing) {
-        setError(`${pendingDate} already has "${existing.name}"`)
-        setTimeout(() => setError(''), 3000)
+      const existingEvent = events.find(e => e.date_ad === pendingDate)
+      if (existingEvent) {
+        setError(`"${existingEvent.name}" already exists on ${pendingDate} — delete it first to change`)
+        setTimeout(() => setError(''), 4000)
         return
       }
 
@@ -78,8 +78,14 @@ export default function ManageCalendarPage() {
   }
 
   function addBsDate(bs: BsDay) {
-    const existing = selectedDates.find(d => d.ad_date === bs.ad)
-    if (existing) return
+    const existingEvent = events.find(e => e.date_ad === bs.ad)
+    if (existingEvent) {
+      setError(`"${existingEvent.name}" already exists on ${bs.ad} — delete it first to change`)
+      setTimeout(() => setError(''), 4000)
+      return
+    }
+    const alreadySelected = selectedDates.find(d => d.ad_date === bs.ad)
+    if (alreadySelected) return
     setSelectedDates(prev => [...prev, { bs_date: bs.bs, ad_date: bs.ad, customName: '' }])
   }
 
@@ -132,6 +138,7 @@ export default function ManageCalendarPage() {
         <div className="flex-1 space-y-3">
           <BsCalendarGrid
             onDateSelect={addBsDate}
+            events={events}
           />
         </div>
         {/* Form + Selected Dates */}

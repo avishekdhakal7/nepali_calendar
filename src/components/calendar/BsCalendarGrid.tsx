@@ -274,6 +274,7 @@ export default function BsCalendarGrid({ selectedAdDate, onDateSelect, className
           const sortedEvents = [...dayEvents].sort(
             (a, b) => EVENT_DOT_ORDER.indexOf(a.event_type) - EVENT_DOT_ORDER.indexOf(b.event_type)
           );
+          const primaryEvent = sortedEvents[0];
 
           return (
             <button
@@ -281,24 +282,18 @@ export default function BsCalendarGrid({ selectedAdDate, onDateSelect, className
               onClick={() => handleDayClick(day)}
               className={`
                 aspect-square flex flex-col items-center justify-center rounded text-xs
-                transition-colors cursor-pointer relative
+                transition-colors cursor-pointer relative overflow-hidden
                 ${isSelected ? 'bg-blue-600 text-white' : ''}
                 ${isToday && !isSelected ? 'ring-2 ring-blue-400' : ''}
-                ${!isSelected && !isToday ? 'text-zinc-300 hover:bg-zinc-700' : ''}
+                ${!isSelected && !isToday && sortedEvents.length === 0 ? 'text-zinc-300 hover:bg-zinc-700' : ''}
+                ${!isSelected && sortedEvents.length > 0 ? `${EVENT_COLORS[primaryEvent.event_type]} text-white` : ''}
               `}
             >
               {isToday && !isSelected && (
-                <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-blue-500" />
+                <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-blue-500 z-10" />
               )}
-              <span className={`font-bold text-sm ${isToday && !isSelected ? 'text-blue-300' : ''}`}>{day.bsDay}</span>
-              <span className={`text-[9px] ${isSelected ? 'text-blue-200' : 'text-zinc-500'}`}>{adDisplay}</span>
-              {sortedEvents.length > 0 && (
-                <div className="absolute bottom-1 flex gap-0.5">
-                  {sortedEvents.slice(0, 4).map((ev, idx) => (
-                    <span key={idx} className={`w-1.5 h-1.5 rounded-full ${EVENT_COLORS[ev.event_type]}`} />
-                  ))}
-                </div>
-              )}
+              <span className={`font-bold text-sm ${isToday && !isSelected && sortedEvents.length === 0 ? 'text-blue-300' : ''}`}>{day.bsDay}</span>
+              <span className={`text-[9px] ${isSelected ? 'text-blue-200' : ''}`}>{adDisplay}</span>
             </button>
           );
         })}
