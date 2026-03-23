@@ -143,25 +143,18 @@ export default function BsCalendarGrid({ selectedAdDate, onDateSelect, className
   ];
   while (cells.length % 7 !== 0) cells.push(null);
 
-  const visibleYears = (() => {
-    if (availableYears.length <= 15) return availableYears;
-    const idx = availableYears.indexOf(bsYear);
-    const start = Math.max(0, idx - 7);
-    return availableYears.slice(start, start + 15);
-  })();
-
   const currentMonthInfo = BS_MONTHS.find(m => m.num === bsMonth);
 
   return (
     <div className={`border border-zinc-700/50 rounded-lg p-4 bg-zinc-900/60 ${className}`}>
       <div className="flex items-center justify-between mb-3">
-        <button onClick={goToPrevMonth} className="p-1 hover:bg-zinc-700 rounded text-zinc-400 hover:text-white">
+        <button onClick={goToPrevMonth} className="p-2 hover:bg-zinc-700 rounded text-zinc-400 hover:text-white mr-2">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <polyline points="15 18 9 12 15 6" />
           </svg>
         </button>
 
-        <div className="flex flex-col items-center gap-1">
+        <div className="flex flex-col items-center gap-2">
           <div className="flex items-center gap-2">
             <select
               value={bsYear}
@@ -187,7 +180,7 @@ export default function BsCalendarGrid({ selectedAdDate, onDateSelect, className
           </div>
         </div>
 
-        <button onClick={goToNextMonth} className="p-1 hover:bg-zinc-700 rounded text-zinc-400 hover:text-white">
+        <button onClick={goToNextMonth} className="p-2 hover:bg-zinc-700 rounded text-zinc-400 hover:text-white ml-2">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <polyline points="9 18 15 12 9 6" />
           </svg>
@@ -234,20 +227,6 @@ export default function BsCalendarGrid({ selectedAdDate, onDateSelect, className
           <span className="text-blue-400">{highlightAd.ad}</span>
         </div>
       )}
-
-      <div className="flex justify-center gap-2 mt-3 flex-wrap">
-        {visibleYears.map(y => (
-          <button
-            key={y}
-            onClick={() => { setBsYear(y); setBsMonth(1); setSelectedDay(null); }}
-            className={`text-xs px-2 py-1 rounded ${
-              y === bsYear ? 'bg-blue-600 text-white' : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300'
-            }`}
-          >
-            {y}
-          </button>
-        ))}
-      </div>
     </div>
   );
 }
